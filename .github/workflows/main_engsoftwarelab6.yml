@@ -1,3 +1,4 @@
+
 # name: Define o nome do workflow
 name: Build and deploy Python app to Azure Web App - EngSoftwareLab6
 
@@ -43,7 +44,20 @@ jobs:
           python -m venv antenv
           source antenv/bin/activate
           pip install -r requirements.txt
-          
+
+      # Salva os arquivos da aplicação para o job de deploy.
+      - name: Upload artifact for deployment jobs
+        # Utiliza a action oficial para armazenar o artefato.
+        uses: actions/upload-artifact@v4
+        # Configura o nome e os arquivos incluídos.
+        with:
+          # Nome do artefato que será baixado no deploy.
+          name: python-app
+          # Inclui o projeto, mas exclui o ambiente virtual.
+          path: |
+            .
+            !antenv/
+
   # deploy: Define o segundo trabalho principal chamado 'deploy', que depende da conclusão do job 'build'
   deploy:
     # runs-on: Especifica a máquina virtual onde este trabalho será executado (ubuntu-latest)
@@ -53,7 +67,7 @@ jobs:
     # permissions: Define as permissões necessárias para autenticação com Azure e leitura de conteúdo
     permissions:
       # id-token: write: Usado na autenticação OAuth2/Azure AD
-      id-token: write 
+      id-token: write
       # contents: read: Permissão necessária para acessar arquivos do repositório se necessário no deploy
       contents: read
 
